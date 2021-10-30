@@ -1,45 +1,95 @@
 import "./App.css";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import RecipeList from "./components/RecipeList";
 import { v4 as uuidv4 } from "uuid";
+import RecipEdit from "./components/RecipEdit";
 
+const LOCAL_STORAGE_KEY = "localStorageRecipe.React";
+export const recipeContext = React.createContext();
 function App() {
-  const [AllRecipes, setAllRecipes] = useState(recipes);
+  const [AllRecipes, setAllRecipes] = useState(initialRecipes);
+  const [selectedRecipeId, setSelectedRecipeId] = useState();
+  const selectedRecipe = AllRecipes.find(
+    (recipe) => recipe.id === selectedRecipeId
+  );
+
+  const handleRecipeSelect = (id) => {
+    setSelectedRecipeId(id);
+  };
+  useEffect(() => {
+    const recipesFromStorage = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEY)
+    );
+    if (recipesFromStorage != null) {
+      setAllRecipes(recipesFromStorage);
+    }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(AllRecipes));
+  }, [AllRecipes]);
+
   const handleRecipeAdd = () => {
     const newRecipe = {
       id: uuidv4(),
-      name: "new",
+      name: "",
       servings: 1,
-      cookTime: "1:00",
-      instructions: ["instructions ..."],
-      ingredients: [{ id: uuidv4(), name: "Name", amount: "1 Tbs" }]
+      cookTime: "",
+      instructions: [""],
+      ingredients: [{ id: uuidv4(), name: "", amount: "" }]
     };
-    setAllRecipes([...AllRecipes, newRecipe]);
-    console.log(AllRecipes);
+    setSelectedRecipeId(newRecipe.id);
+    setAllRecipes([newRecipe, ...AllRecipes]);
   };
 
   const handleDeleteRecipe = (id) => {
+    if (selectedRecipeId != null && selectedRecipeId == id) {
+      setSelectedRecipeId(undefined);
+    }
     setAllRecipes(AllRecipes.filter((recipe) => recipe.id !== id));
   };
+  const handleRecipeChange = (id, recipe) => {
+    const newRecipes = [...AllRecipes];
+    const index = newRecipes.findIndex((r) => r.id === id);
+    newRecipes[index] = recipe;
+    setAllRecipes(newRecipes);
+  };
+  const valueRecipeContext = {
+    handleDeleteRecipe,
+    handleRecipeAdd,
+    handleRecipeSelect,
+    handleRecipeChange
+  };
+
   return (
     <div className="App">
-      <RecipeList
-        recipes={AllRecipes}
-        handleRecipeAdd={handleRecipeAdd}
-        handleDeleteRecipe={handleDeleteRecipe}
-      />
+      <recipeContext.Provider value={valueRecipeContext}>
+        <StyledContainer>
+          <div className="w-1/2 child">
+            {AllRecipes && (
+              <RecipeList
+                recipes={AllRecipes}
+                handleRecipeAdd={handleRecipeAdd}
+                handleDeleteRecipe={handleDeleteRecipe}
+              />
+            )}
+          </div>
+          <div className="w-1/2 child">
+            {selectedRecipe && <RecipEdit recipe={selectedRecipe} />}
+          </div>
+        </StyledContainer>
+      </recipeContext.Provider>
     </div>
   );
 }
 
-const recipes = [
+const initialRecipes = [
   {
     id: 1,
     name: "Biryani",
     servings: 3,
     cookTime: "13:30",
-    instructions: ["put salt ", " put rice in hot water", "put chicken"],
+    instructions: `1 - put salt \n2 - put rice in hot water\n3 - put chicken`,
     ingredients: [
       {
         id: 1,
@@ -58,7 +108,7 @@ const recipes = [
     name: "Tacos",
     servings: 1,
     cookTime: "5:30",
-    instructions: ["put salt ", " put Meat", "Eat tocos"],
+    instructions: "1 - put salt\n2 - put Meat\n3 - Eat tocos",
     ingredients: [
       {
         id: 1,
@@ -74,3 +124,15 @@ const recipes = [
   }
 ];
 export default App;
+
+const StyledContainer = styled.div`
+  display: flex;
+  justify-content: center;
+
+  @media (max-width: 500px) {
+    .child {
+      min-width: 100vw;
+    }
+    flex-direction: column-reverse;
+  }
+`;

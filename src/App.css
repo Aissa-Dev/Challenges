@@ -1,0 +1,27 @@
+@media (max-width: 1000px) {
+  .inputName::before {
+    content: "Name";
+    display: inline-block;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 1rem;
+  }
+  .inputAmount::before {
+    content: "Amount";
+    display: inline-block;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .inputName,
+  .inputAmount {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 0;
+  }
+}

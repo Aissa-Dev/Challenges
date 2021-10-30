@@ -1,21 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
 import Recipe from "./Recipe";
-
-function RecipeList({ recipes, handleRecipeAdd, handleDeleteRecipe }) {
+import { recipeContext } from "../App";
+import styled from "styled-components";
+function RecipeList({ recipes }) {
+  const { handleDeleteRecipe, handleRecipeAdd } = useContext(recipeContext);
   return (
     <>
-      <div className="w-2/6 p-4">
+      <div className=" p-4 m-auto w-3/4">
+        <button
+          className="bg-blue-600 text-white w-full py-4 rounded-xl mb-4 hover:scale-y-105 transform"
+          onClick={handleRecipeAdd}
+        >
+          Add recipe
+        </button>
         {recipes.map((recipe) => {
-          return (
-            <Recipe
-              key={recipe.id}
-              {...recipe}
-              handleDeleteRecipe={handleDeleteRecipe}
-            />
-          );
+          return <Recipe key={recipe.id} {...recipe} />;
         })}
       </div>
-      <button onClick={handleRecipeAdd}>Add recipe</button>
     </>
   );
 }

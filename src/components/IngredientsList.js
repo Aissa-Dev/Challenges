@@ -4,8 +4,8 @@ import Ingredient from "./Ingredient";
 function IngredientsList({ ingredients }) {
   return (
     <>
-      {ingredients.map((ingredient) => (
-        <Ingredient key={ingredient.id} {...ingredient} />
+      {ingredients.map((ingredient, id) => (
+        <Ingredient key={id} id={id} {...ingredient} />
       ))}
     </>
   );
